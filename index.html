@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<title>Daily Energy Night 🌙</title>
+<link href="https://fonts.googleapis.com/css2?family=Dancing+Script&family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+<style>
+body {
+  height:100vh;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  font-family:'Poppins',sans-serif;
+  color:#fff;
+  margin:0;
+  text-align:center;
+  background:linear-gradient(120deg,#0d0d1a,#1a1a33);
+  overflow:hidden;
+  position:relative;
+  transition: background 1s ease;
+}
+#moon {
+  position:absolute;
+  top:10%;
+  left:-100px;
+  width:80px;
+  height:80px;
+  background:radial-gradient(circle,#fff 60%,#aaa 100%);
+  border-radius:50%;
+  box-shadow:0 0 30px rgba(255,255,255,0.5);
+  z-index:1;
+  animation:moonMove 60s linear infinite;
+}
+@keyframes moonMove {0%{left:-100px;} 50%{left:50%;} 100%{left:110%;}}
+.star {
+  position:absolute;
+  background:white;
+  border-radius:50%;
+  opacity:0.8;
+  z-index:0;
+  transition: opacity 0.2s;
+}
+#quote {
+  font-family:'Dancing Script',cursive;
+  font-size:2.2em;
+  margin-bottom:10px;
+  opacity:1;
+  transition:opacity 0.6s ease, transform 0.6s ease, text-shadow 0.6s ease;
+  text-shadow:1px 1px 3px rgba(0,0,0,0.5);
+  z-index:2;
+  position:relative;
+}
+#quote.bounce {animation: bounceGlow 0.6s ease;}
+@keyframes bounceGlow {
+  0% {transform: translateY(0); text-shadow:1px 1px 3px rgba(0,0,0,0.5);}
+  50% {transform: translateY(-20px); text-shadow:0 0 15px #ffcc70;}
+  100% {transform: translateY(0); text-shadow:1px 1px 3px rgba(0,0,0,0.5);}
+}
+#time {
+  font-size:1.3em;
+  margin-bottom:10px;
+  color:#ffcc70;
+  font-weight:600;
+  z-index:2;
+  position:relative;
+}
+#date {
+  font-size:1.2em;
+  margin-bottom:10px;
+  color:#70d6ff;
+  font-weight:500;
+  z-index:2;
+  position:relative;
+}
+button {
+  padding:12px 20px;
+  margin:5px;
+  border:none;
+  border-radius:25px;
+  cursor:pointer;
+  font-size:1.1em;
+  transition:all 0.3s ease;
+  background-color:#555;
+  color:#fff;
+  box-shadow:0 4px 10px rgba(0,0,0,0.2);
+  z-index:2;
+}
+button:hover {background-color:#777; transform:scale(1.05);}
+#controls {margin-top:15px; display:flex; gap:10px; flex-wrap:wrap; justify-content:center;}
+</style>
+</head>
+<body>
+<div id="moon"></div>
+<div id="date">-- -- ----</div>
+<div id="time">--:--:--</div>
+<h1 id="quote">🌙 مساء الخير! / Good Evening! 🌙</h1>
+
+<div id="controls">
+  <button id="nextBtn" onclick="changeQuote()">Next Quote 💫 / اقتباس جديد</button>
+  <button id="likeBtn" onclick="likeQuote()">❤️ إعجاب (0)</button>
+  <button onclick="copyQuote()">📋 نسخ</button>
+  <button onclick="shareQuote()">📤 مشاركة</button>
+</div>
+
+<script>
+// نجوم متحركة
+const stars=[];
+for(let i=0;i<50;i++){
+  const star=document.createElement('div');
+  star.classList.add('star');
+  const size=Math.random()*3+1;
+  star.style.width=`${size}px`;
+  star.style.height=`${size}px`;
+  star.style.top=`${Math.random()*100}%`;
+  star.style.left=`${Math.random()*100}%`;
+  document.body.appendChild(star);
+  stars.push({el:star, x:Math.random()*2-1, y:Math.random()*2-1});
+}
+function animateStars(){
+  stars.forEach(s=>{
+    let top=parseFloat(s.el.style.top);
+    let left=parseFloat(s.el.style.left);
+    top+=s.y*0.05; left+=s.x*0.05;
+    if(top<0) top=100; if(top>100) top=0;
+    if(left<0) left=100; if(left>100) left=0;
+    s.el.style.top=`${top}%`;
+    s.el.style.left=`${left}%`;
+    s.el.style.opacity=0.5+Math.random()*0.5;
+  });
+  requestAnimationFrame(animateStars);
+}
+animateStars();
+
+// الاقتباسات مع رموز تعبيرية
+const quotes=[
+{ text:"مع العسر يسرا / After hardship comes ease", emoji:"🌙" },
+{ text:"توكل على الله وكن واثقاً / Trust in God and be confident", emoji:"🙏" },
+{ text:"ابتسمي، فكل يوم فرصة جديدة / Smile, every day is a new opportunity", emoji:"😊" },
+{ text:"النجاح يبدأ بخطوة صغيرة / Success starts with a small step", emoji:"🏃‍♀️" },
+{ text:"الصبر مفتاح الفرج / Patience is the key to relief", emoji:"⏳" },
+{ text:"لا تيأس، فالله مع الصابرين / Never despair, God is with the patient", emoji:"💪" },
+{ text:"اعمل بجد، والنتيجة ستأتي / Work hard, results will follow", emoji:"🔥" },
+{ text:"كل صباح هو بداية جديدة / Every morning is a new beginning", emoji:"☀️" },
+{ text:"الثقة بالنفس بداية كل نجاح / Self-confidence is the start of all success", emoji:"💎" },
+{ text:"احمد الله على كل شيء / Thank God for everything", emoji:"🌸" },
+{ text:"قوتك في ابتسامتك / Your strength is in your smile", emoji:"😊" },
+{ text:"العقل زينة / The mind is an ornament", emoji:"🧠" },
+{ text:"اجعل يومك مشرقاً / Make your day bright", emoji:"🌞" },
+{ text:"الفرص تأتي للصابرين / Opportunities come to the patient", emoji:"🌟" },
+{ text:"العطاء سر السعادة / Giving is the secret to happiness", emoji:"🎁" },
+{ text:"استمر مهما كان الطريق صعباً / Keep going no matter how hard the road", emoji:"🚀" },
+{ text:"الأمل هو شعاع الحياة / Hope is the ray of life", emoji:"✨" },
+{ text:"كن أنت التغيير الذي تريد أن تراه / Be the change you wish to see", emoji:"🌱" },
+{ text:"النجاح رحلة وليس هدف / Success is a journey, not a destination", emoji:"🛤️" },
+{ text:"لا تتوقف عن التعلم / Never stop learning", emoji:"📚" },
+{ text:"كل تجربة تعلمك درس / Every experience teaches a lesson", emoji:"💡" },
+{ text:"العقلية الإيجابية تجلب النجاح / Positive mindset brings success", emoji:"🌈" },
+{ text:"الهدوء قوة / Calmness is strength", emoji:"🕊️" },
+{ text:"العزيمة تصنع المعجزات / Determination creates miracles", emoji:"🏆" },
+{ text:"التفاؤل سر الحياة / Optimism is the secret of life", emoji:"🌞" },
+{ text:"كل لحظة هي فرصة جديدة / Every moment is a new opportunity", emoji:"⏰" },
+{ text:"أحط نفسك بالناس الإيجابيين / Surround yourself with positive people", emoji:"🤝" },
+{ text:"ابتسامة منك تغير يوم شخص / Your smile can change someone's day", emoji:"😊" },
+{ text:"التحديات تصنع الأبطال / Challenges make champions", emoji:"⚔️" },
+{ text:"حافظ على هدوئك مهما حصل / Keep your calm no matter what", emoji:"🧘‍♀️" },
+{ text:"ثق بقدرتك على التغيير / Trust your ability to change", emoji:"💪" },
+{ text:"القلب الطيب يجذب الخير / A kind heart attracts goodness", emoji:"❤️" },
+{ text:"المحاولة أفضل من عدم المحاولة / Trying is better than not trying", emoji:"🏹" },
+{ text:"كل مشكلة تحمل درساً / Every problem carries a lesson", emoji:"📖" },
+{ text:"كن ممتن لكل ما لديك / Be grateful for everything you have", emoji:"🙏" },
+{ text:"التواضع يجعل قلبك جميلاً / Humility makes your heart beautiful", emoji:"🌸" },
+{ text:"العطاء بدون انتظار مقابل / Give without expecting anything in return", emoji:"🎁" },
+{ text:"التفكير الإيجابي يولد السعادة / Positive thinking generates happiness", emoji:"😃" },
+{ text:"تعلم من أخطائك / Learn from your mistakes", emoji:"📝" },
+{ text:"كل يوم هو هدية / Every day is a gift", emoji:"🎁" },
+{ text:"الإبداع يبدأ بالفكرة / Creativity starts with an idea", emoji:"💡" },
+{ text:"الصبر يصنع الفرق / Patience makes the difference", emoji:"⏳" },
+{ text:"الحياة قصيرة فاستمتع بكل لحظة / Life is short, enjoy every moment", emoji:"🌸" },
+{ text:"الثقة بالله تجعل الأمور سهلة / Trusting God makes things easier", emoji:"✨" },
+{ text:"التغيير يبدأ بخطوة صغيرة / Change begins with a small step", emoji:"👣" },
+{ text:"النجاح يحتاج إلى صبر واصرار / Success requires patience and persistence", emoji:"💪" },
+{ text:"كن شجاعاً وواجه مخاوفك / Be brave and face your fears", emoji:"🦁" },
+{ text:"التقدير يجعل العلاقات أقوى / Appreciation strengthens relationships", emoji:"🤗" },
+{ text:"العمل الجماعي يحقق المستحيل / Teamwork achieves the impossible", emoji:"🤝" },
+{ text:"لا تدع الأمس يسرق اليوم / Don’t let yesterday steal today", emoji:"⏰" },
+{ text:"أحلامك تستحق أن تحقّق / Your dreams deserve to come true", emoji:"🌠" },
+{ text:"الضحك علاج رائع / Laughter is a great medicine", emoji:"😂" },
+{ text:"كل يوم جديد فرصة لتصبح أفضل / Every new day is a chance to become better", emoji:"🌞" }
+];
+
+let currentQuoteIndex=0;
+const quoteEl=document.getElementById("quote");
+const likeBtn=document.getElementById("likeBtn");
+const likes={}; 
+
+function changeQuote(){
+  quoteEl.classList.remove("bounce");
+  quoteEl.style.opacity=0;
+  quoteEl.style.transform="translateY(-30px)";
+  setTimeout(()=>{
+    currentQuoteIndex=Math.floor(Math.random()*quotes.length);
+    const q = quotes[currentQuoteIndex];
+    quoteEl.textContent=`${q.text} ${q.emoji}`;
+    quoteEl.style.opacity=1;
+    quoteEl.style.transform="translateY(0)";
+    quoteEl.classList.add("bounce");
+    likeBtn.textContent=`❤️ إعجاب (${likes[currentQuoteIndex]||0})`;
+  },600);
+}
+
+function likeQuote(){
+  likes[currentQuoteIndex]= (likes[currentQuoteIndex] || 0) +1;
+  likeBtn.textContent=`❤️ إعجاب (${likes[currentQuoteIndex]})`;
+}
+
+function copyQuote(){
+  navigator.clipboard.writeText(quotes[currentQuoteIndex].text + " " + quotes[currentQuoteIndex].emoji);
+  alert("📋 تم نسخ الاقتباس!");
+}
+
+function shareQuote(){
+  navigator.clipboard.writeText(quotes[currentQuoteIndex].text + " " + quotes[currentQuoteIndex].emoji);
+  alert("📤 الاقتباس جاهز للمشاركة!");
+}
+
+// الساعة + التاريخ
+function updateTimeDate(){
+  const now=new Date();
+  const hours=String(now.getHours()).padStart(2,'0');
+  const minutes=String(now.getMinutes()).padStart(2,'0');
+  const seconds=String(now.getSeconds()).padStart(2,'0');
+  document.getElementById("time").textContent=`${hours}:${minutes}:${seconds}`;
+
+  const options = {weekday:'long', year:'numeric', month:'long', day:'numeric'};
+  document.getElementById("date").textContent=now.toLocaleDateString('ar-EG', options)+' / '+now.toLocaleDateString('en-US', options);
+}
+setInterval(updateTimeDate,1000);
+updateTimeDate();
+</script>
+</body>
+</html>
